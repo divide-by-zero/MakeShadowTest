@@ -128,29 +128,20 @@ public class HandLight : MonoBehaviour {
             shadowVertextList[i] = Vector3.zero;
             shadowVertextList[i + 1] = Vector3.zero;
 
-            RaycastHit hitinfo;
-            if (Physics.Linecast(startVec, endVec, out hitinfo, targetLayer))
+            //終端から逆にRaycastAllして、影部分を弾き出す
+            var hits = Physics.RaycastAll(new Ray(endVec, startVec - endVec), radius, targetLayer);
+            if (hits != null)//ありえないはずだけれどまぁ、一応
             {
-                //シンプル影
-//                vertextList[i] = hitinfo.point - transform.position;
-//                vertextList[i + 1] = endVec - transform.position;
+                var farRaycastHit = hits.OrderByDescending(hit => hit.distance).FirstOrDefault();
 
-                //終端から逆にRaycastAllして、影部分を弾き出す
-                var hits = Physics.RaycastAll(new Ray(endVec, startVec - endVec), radius, targetLayer);
-                if (hits != null)//ありえないはずだけれどまぁ、一応
+                if (farRaycastHit.distance < 0.001f)//終端が埋まっているぽいので回避
                 {
-                    var farRaycastHit = hits.OrderByDescending(hit => hit.distance).FirstOrDefault();
-
-                    if (farRaycastHit.distance < 0.001f)//終端が埋まっているぽいので回避
-                    {
-                        continue;
-                    }
-
-                    shadowVertextList[i] = farRaycastHit.point - transform.position;
-                    shadowVertextList[i + 1] = endVec - transform.position;
+                    continue;
                 }
-            }
 
+                shadowVertextList[i] = farRaycastHit.point - transform.position;
+                shadowVertextList[i + 1] = endVec - transform.position;
+            }
         }
         shadowMeshFilter.sharedMesh.SetVertices(shadowVertextList);
     }
