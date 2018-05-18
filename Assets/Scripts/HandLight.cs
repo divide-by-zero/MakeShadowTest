@@ -4,79 +4,78 @@ using UnityEngine;
 using UnityEngine.Experimental.UIElements;
 using UnityEngine.SceneManagement;
 using Slider = UnityEngine.UI.Slider;
+using Toggle = UnityEngine.UI.Toggle;
 
 public class HandLight : MonoBehaviour {
 
     [SerializeField]
     private MeshFilter meshFilter;
     [SerializeField]
-    private float radius = 10;
-
-    [SerializeField]
-    private float angle = 25;
-
-    [SerializeField]
-    private float deltaAngle = 0.1f;
-
+    private MeshFilter shadowMeshFilter;
     [SerializeField]
     private LayerMask targetLayer;
-
-    [SerializeField]
-    private MeshFilter shadowMeshFilter;
-
     [SerializeField]
     private Material cloneShadoMat;
 
     [SerializeField]
     private Slider radiusSlider;
-
     [SerializeField]
     private Slider angleSlider;
-
     [SerializeField]
     private Slider deltaAngleSlider;
+    [SerializeField]
+    private Toggle makeColliderToggle;
 
-    private List<Vector3> vertextList = new List<Vector3>();
-    private List<Vector3> shadowVertextList = new List<Vector3>();
+    private List<Vector3> vertextList;
+    private List<Vector3> shadowVertextList;
 
+    private float radius = 10;
+    private float angle = 45;
+    private float deltaAngle = 0.2f;
     private float _deltaRad;
     private float _startRad;
-
-
-
+    private bool isMakeCollider = false;
     void Start()
     {
         Initialize();
 
         //雑なパラメータ変更処理　動いているのが不思議
+        radiusSlider.value = radius;
         radiusSlider.onValueChanged.AddListener(value =>
         {
             radius = value;
             Initialize();
         });
+        angleSlider.value = angle;
         angleSlider.onValueChanged.AddListener(value =>
         {
             angle = value;
             Initialize();
         });
+        deltaAngleSlider.value = deltaAngle;
         deltaAngleSlider.onValueChanged.AddListener(value =>
         {
             deltaAngle = value;
             Initialize();
         });
+        makeColliderToggle.isOn = isMakeCollider;
+        makeColliderToggle.onValueChanged.AddListener(flg =>
+        {
+            isMakeCollider = flg;
+        });
     }
 
     private void Initialize()
     {
-        shadowMeshFilter.sharedMesh = CreatePlaneMesh(vertextList);
-        meshFilter.sharedMesh = CreatePlaneMesh(shadowVertextList);
+        vertextList = CreateFanVertices();
+        shadowMeshFilter.sharedMesh = CreateFanMesh(vertextList);
+        shadowVertextList = CreateFanVertices();
+        meshFilter.sharedMesh = CreateFanMesh(shadowVertextList);
     }
 
-    private Mesh CreatePlaneMesh(List<Vector3> vlist)
+    private List<Vector3> CreateFanVertices()
     {
-        vlist.Clear();
-        var mesh = new Mesh();
-        var indexList = new List<int>();
+        var vlist = new List<Vector3>();
         _deltaRad = deltaAngle * Mathf.Deg2Rad;
         _startRad = -angle / 2 * Mathf.Deg2Rad;
 
@@ -86,11 +85,18 @@ public class HandLight : MonoBehaviour {
             vlist.Add(new Vector3(0, 0, 0));//0番頂点,2番頂点、4番頂点・・・
             vlist.Add(new Vector3(Mathf.Cos(rad) * radius, Mathf.Sin(rad) * radius, 0)); //1番頂点、3番頂点、5番頂点・・・
         }
+        return vlist;
+    }
 
+    private Mesh CreateFanMesh(List<Vector3> vlist)
+    {
+        var mesh = new Mesh();
+        var indexList = new List<int>();
         //インデックス作成
         for (var i = 0; i < vlist.Count-2; i+=2)
         {
             indexList.AddRange(new[] { i + 0, i + 2, i + 1, i + 1, i + 2, i + 3 });//0-2-1の頂点で1三角形。 1-2-3の頂点で1三角形。
+            indexList.AddRange(new[] { i + 0, i + 1, i + 2, i + 1, i + 3, i + 2 });//両面にしないと生成したMeshColliderがちょっとおかしくなる
         }
 
         mesh.SetVertices(vlist);//meshに頂点群をセット
@@ -104,7 +110,7 @@ public class HandLight : MonoBehaviour {
 
         if (Input.GetMouseButtonDown((int)MouseButton.RightMouse))
         {
-            MakeClone();
+            MakeInstance();
         }
 
         //リセット
@@ -149,19 +155,47 @@ public class HandLight : MonoBehaviour {
         shadowMeshFilter.sharedMesh.SetVertices(shadowVertextList);
     }
 
-    private void MakeClone()
+    private void MakeInstance()
     {
-        var go = new GameObject("shadowcopy");
+        var makeShadowVertices = new List<Vector3>();
+        foreach (var vpos in shadowVertextList)
+        {
+            if (vpos == Vector3.zero)
+            {
+                if (makeShadowVertices.Any())
+                {
+                    MakeShadowInstance(makeShadowVertices);
+                    makeShadowVertices.Clear();
+                }
+            }
+            else
+            {
+                makeShadowVertices.Add(vpos);
+            }
+        }
+        if (makeShadowVertices.Any())
+        {
+            MakeShadowInstance(makeShadowVertices);
+        }
+    }
+
+    private void MakeShadowInstance(List<Vector3> vlist)
+    {
+        var go = new GameObject("ShadowInstance");  //実体化した影
         go.transform.position = transform.position;
         var pos = go.transform.position;
         pos.z = -0.02f;//雑なZorder
         go.transform.position = pos;
         var renderer = go.AddComponent<MeshRenderer>();
-        renderer.material = cloneShadoMat;
+        renderer.sharedMaterial = cloneShadoMat;
         var filter = go.AddComponent<MeshFilter>();
-        filter.mesh = Instantiate(shadowMeshFilter.sharedMesh);
-        go.gameObject.AddComponent<Rigidbody>();
-        //ここでちゃんとMeshColliderの設定とかすればまぁ、似た感じになると思うんだけどスルー
+        filter.mesh = CreateFanMesh(vlist);
+        var rigibody = go.gameObject.AddComponent<Rigidbody>();
+        if (isMakeCollider)
+        {
+            rigibody.isKinematic = true;
+            var collder = go.AddComponent<MeshCollider>();
+        }
         Destroy(go.gameObject, 2.0f);
     }
 }
