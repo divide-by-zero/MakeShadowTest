@@ -80,15 +80,17 @@ public class HandLight : MonoBehaviour {
         _deltaRad = deltaAngle * Mathf.Deg2Rad;
         _startRad = -angle / 2 * Mathf.Deg2Rad;
 
-        var index = 0;
-        for (var rad = _startRad; rad < -_startRad; rad += _deltaRad)
+        //頂点作成
+        for (var rad = _startRad; rad <= -_startRad; rad += _deltaRad)
         {
-            vlist.Add(new Vector3(0, 0, 0));//0番頂点
-            vlist.Add(new Vector3(Mathf.Cos(rad) * radius, Mathf.Sin(rad) * radius, 0)); //1番頂点
-            vlist.Add(new Vector3(0, 0, 0));//0番頂点
-            vlist.Add(new Vector3(Mathf.Cos(rad +_deltaRad) * radius, Mathf.Sin(rad + _deltaRad) * radius, 0)); //1番頂点
-            indexList.AddRange(new[] { index + 0, index + 2,index + 1,index + 1,index+ 2,index+ 3 });//0-2-1の頂点で1三角形。 1-2-3の頂点で1三角形。
-            index += 4;
+            vlist.Add(new Vector3(0, 0, 0));//0番頂点,2番頂点、4番頂点・・・
+            vlist.Add(new Vector3(Mathf.Cos(rad) * radius, Mathf.Sin(rad) * radius, 0)); //1番頂点、3番頂点、5番頂点・・・
+        }
+
+        //インデックス作成
+        for (var i = 0; i < vlist.Count-2; i+=2)
+        {
+            indexList.AddRange(new[] { i + 0, i + 2, i + 1, i + 1, i + 2, i + 3 });//0-2-1の頂点で1三角形。 1-2-3の頂点で1三角形。
         }
 
         mesh.SetVertices(vlist);//meshに頂点群をセット
