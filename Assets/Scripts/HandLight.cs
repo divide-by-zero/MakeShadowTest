@@ -119,10 +119,14 @@ public class HandLight : MonoBehaviour {
 
     private void UpdateShadowVitices()
     {
+        //ライトが回転している場合もあるので、回転と、逆回転のQuaternionを先に取得しておく
+        var rot = transform.rotation;
+        var invert = Quaternion.Inverse(rot);
+
         for (var i = 0; i < vertextList.Count - 1; i+=2)
         {
-            var startVec = transform.position + vertextList[i];
-            var endVec = transform.position + vertextList[i + 1];
+            var startVec = transform.position + rot * vertextList[i];
+            var endVec = transform.position + rot * vertextList[i + 1];
 
             //基本的には縮退させて消す
             shadowVertextList[i] = Vector3.zero;
@@ -130,17 +134,13 @@ public class HandLight : MonoBehaviour {
 
             //終端から逆にRaycastAllして、影部分を弾き出す
             var hits = Physics.RaycastAll(new Ray(endVec, startVec - endVec), radius, targetLayer);
-            if (hits != null)//ありえないはずだけれどまぁ、一応
+            if (hits != null)
             {
                 var farRaycastHit = hits.OrderByDescending(hit => hit.distance).FirstOrDefault();
+                if (farRaycastHit.distance < 0.001f) continue; //終端が埋まっているぽいので回避
 
-                if (farRaycastHit.distance < 0.001f)//終端が埋まっているぽいので回避
-                {
-                    continue;
-                }
-
-                shadowVertextList[i] = farRaycastHit.point - transform.position;
-                shadowVertextList[i + 1] = endVec - transform.position;
+                shadowVertextList[i] = invert * (farRaycastHit.point - transform.position);
+                shadowVertextList[i + 1] = invert * (endVec - transform.position);
             }
         }
         shadowMeshFilter.sharedMesh.SetVertices(shadowVertextList);
@@ -174,6 +174,7 @@ public class HandLight : MonoBehaviour {
     {
         var go = new GameObject("ShadowInstance");  //実体化した影
         go.transform.position = transform.position;
+        go.transform.rotation = transform.rotation;
         var pos = go.transform.position;
         pos.z = -0.02f;//雑なZorder
         go.transform.position = pos;
