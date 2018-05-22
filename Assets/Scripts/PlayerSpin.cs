@@ -9,7 +9,7 @@ public class PlayerSpin : MonoBehaviour
 	    GetComponent<SpinDetecter>().MouseRotation = f =>
 	    {
 	        if (DragTarget.IsDrag) return;  //ドラッグ中はSpinを受け取らない
-            transform.Rotate(0, 0, f * Time.deltaTime * 60);
+            transform.Rotate(0, 0, f);
 	    };
 	}
 }

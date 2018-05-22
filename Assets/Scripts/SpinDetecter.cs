@@ -34,39 +34,37 @@ public class SpinDetecter : MonoBehaviour
         targetScale = transform.localScale;
     }
 
-    void Update ()
+    void FixedUpdate ()
     {
         Value = 0;
         if (EventSystem.current.currentSelectedGameObject != null) return;  //UI触ってる
 
         var pos = (Vector2) Camera.main.ScreenToViewportPoint(Input.mousePosition);
 
-
         if (Input.GetMouseButtonDown((int)targetMouseButton))
 	    {
             posList.Clear();
 	        oldPos = pos;
 	    }
-	    if (Input.GetMouseButton((int)targetMouseButton) && (oldPos - pos).magnitude > 0.01f)
+	    if (Input.GetMouseButton((int)targetMouseButton) && (oldPos - pos).magnitude > 0.1f)
 	    {
+            posList.Add(pos);
+            while(posList.Count > listSize)posList.RemoveAt(0);
+
 	        //過去のマウス位置履歴から、論理的な中心点を得る
 	        if (posList.Count >= listSize)
 	        {
 	            logicalCenter.x = posList.Average(vector2 => vector2.x);
 	            logicalCenter.y = posList.Average(vector2 => vector2.y);
-	        }
-	        var a = oldPos - logicalCenter;
-	        var b = pos - logicalCenter;
-	        //2D外積はUnityには無いっぽい
-	        var cross = a.x * b.y - a.y * b.x;
 
-            posList.Add(pos);
-            while(posList.Count > listSize)posList.RemoveAt(0);
+	            var a = oldPos - logicalCenter;
+	            var b = pos - logicalCenter;
+	            //2D外積はUnityには無いっぽい
+	            var cross = a.x * b.y - a.y * b.x;
 
-	        if (posList.Count >= listSize)
-	        {
-	            if (cross > 0) Value = 1;
+                if (cross > 0) Value = 1;
                 else if (cross < 0) Value = -1;
+                else Value = 0;
 	        }
 	        oldPos = pos;
 	    }
