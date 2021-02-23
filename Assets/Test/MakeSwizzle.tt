@@ -1,0 +1,59 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+using UnityEngine;
+using System.ComponentModel;
+namespace VectorExtensions
+{
+<#
+	var target = new[]{"","x","y","z","w"};
+	var min = 2;
+	var max = 4;
+	var classExtension = "Vector";
+
+	for(var baseNum = min;baseNum <= max;baseNum++)
+	{
+		var alreadyUsedMethod = new List<string>();
+
+#>
+	public static class Vector<#=baseNum#>SwizzleExtension
+	{
+<#
+		for(var targetNum = min;targetNum <= max;targetNum++)
+		{
+			for(var a = 0;a < 5;++a)
+			{
+				for(var b = 0;b < 5;++b)
+				{
+					for(var c = 0;c < 5;++c)
+					{
+						for(var d = 0;d < 5;++d)
+						{
+							var methodName = target[a]+target[b]+target[c]+target[d];
+							if(methodName.Length < 2)continue;
+							if(methodName.Length > targetNum)continue;
+							if(a > baseNum || b > baseNum || c > baseNum || d > baseNum)continue;
+							if(alreadyUsedMethod.Contains(methodName))continue;
+							alreadyUsedMethod.Add(methodName);
+#>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+		public static <#=classExtension+targetNum#> <#=methodName#>(this <#=classExtension+baseNum#> v)
+		{
+			return new <#=classExtension+targetNum#>(<#=string.Join(",",methodName.Select(field => "v." + field))#>);
+		}
+<#
+							}
+						}
+					}
+				}
+			}
+#>
+	}
+<#
+		}
+#>
+}
