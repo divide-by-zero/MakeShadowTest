@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4321847937233576715
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4321847937233576713}
+  - component: {fileID: 4321847937233576712}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4321847937233576713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4321847937233576715}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.29207, y: 5.521365, z: -1.3211308}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4321847937233576712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4321847937233576715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6598ce01731e6c245b692390a4afefbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  registerSeDataList:
+  - name: "\u30B8\u30E3\u30F3\u30D7"
+    audioClip: {fileID: 8300000, guid: 3b42fe812452dcc47927e92541f06a41, type: 3}
+  - name: "\u7740\u5730"
+    audioClip: {fileID: 8300000, guid: 0ffac8b425eca3b4eb729cd293d80604, type: 3}
+  - name: "\u91CD\u529B\u89E3\u9664"
+    audioClip: {fileID: 8300000, guid: e760b6591fcda5c4d9387dd3a8055985, type: 3}
+  - name: "\u65D7"
+    audioClip: {fileID: 8300000, guid: 81d200906201fc14b8b64216251f010c, type: 3}
+  - name: CLEAR
+    audioClip: {fileID: 8300000, guid: 56a70ff091140ab4b9e92cba0aad159b, type: 3}
+  - name: "\u30DD\u30F3"
+    audioClip: {fileID: 8300000, guid: 5ac1eed3cf1ffc640aff284f36160b52, type: 3}
+  - name: "\u30D4\u30F3"
+    audioClip: {fileID: 8300000, guid: ec5fe8a8f1b62c145b47aa46213f500b, type: 3}
+  Clips:
+  - {fileID: 8300000, guid: 209a32389fd9d94429e1f084a96497e0, type: 3}
+  - {fileID: 8300000, guid: e49e9e2c84df71c46b7a103295e72315, type: 3}
+  - {fileID: 8300000, guid: 9b7a5db9d2317e043b12d386a2d9390c, type: 3}

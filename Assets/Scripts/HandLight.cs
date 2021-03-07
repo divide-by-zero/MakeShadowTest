@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Experimental.UIElements;
 using UnityEngine.SceneManagement;
 using Slider = UnityEngine.UI.Slider;
 using Toggle = UnityEngine.UI.Toggle;
@@ -108,7 +107,7 @@ public class HandLight : MonoBehaviour {
     {
         UpdateShadowVitices();
 
-        if (Input.GetMouseButtonDown((int)MouseButton.RightMouse))
+        if (Input.GetMouseButtonDown(1))
         {
             MakeInstance();
         }
